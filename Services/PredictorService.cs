@@ -238,7 +238,13 @@ public class PredictorService
         _log.LogInformation("PredictInternalAsync: lastCompletedRound={Last} nextRound={Next} fixturesNext={Fixtures}", lastCompletedRound, nextRound, fixturesNext.Count);
 
         // Save CSV to temp dir
-        var tempDir = Path.GetTempPath();
+        // var tempDir = Path.GetTempPath();
+        // var csvPath = Path.Combine(tempDir, "epl.csv");
+        var tempDirObj = Directory.CreateTempSubdirectory("epl_predict_");
+        var tempDir = tempDirObj.FullName;
+
+        _log.LogInformation("tempDir = {TempDir}", tempDir);
+
         var csvPath = Path.Combine(tempDir, "epl.csv");
         
         // Write the raw matches to the CSV in the temp directory so the Python script can read it
@@ -274,7 +280,7 @@ public class PredictorService
         else
         {
             var venvPython = Path.Combine(venvPath, "bin", "python");
-            pythonCmd = File.Exists(venvPython) ? venvPython : "python3";
+            pythonCmd = File.Exists(venvPython) ? venvPython : "python";
         }
         
         _log.LogInformation("Using Python command: {Cmd}", pythonCmd);
@@ -341,16 +347,30 @@ public class PredictorService
         // Parse predictions CSV
         var predsList = new List<FixturePrediction>();
         var predsCsvPath = Path.Combine(tempDir, "next_round_predictions.csv");
+        
+        _log.LogInformation("Looking for predictions at {Path}. Exists={Exists}", predsCsvPath, File.Exists(predsCsvPath));
+
+        if (!File.Exists(predsCsvPath))
+        {
+            _log.LogWarning("Predictions missing. Files in tempDir: {Files}",
+                string.Join(", ", Directory.GetFiles(tempDir).Select(Path.GetFileName)));
+            // fallback in case python wrote to the OS temp root for some reason
+            var fallback = Path.Combine(Path.GetTempPath(), "next_round_predictions.csv");
+            _log.LogInformation("Fallback check at {Path}. Exists={Exists}", fallback, File.Exists(fallback));
+            if (File.Exists(fallback))
+                predsCsvPath = fallback;
+        }
+        
         if (File.Exists(predsCsvPath))
         {
             predsList = ParsePredictionsCsv(predsCsvPath);
         }
+        
         // Added newly
         predsList = predsList
             .Select(p => p with { Round = nextRound })
             .ToList();
         
-        _log.LogInformation("Looking for predictions at {Path}. Exists={Exists}", predsCsvPath, File.Exists(predsCsvPath));
 
         // Parse backtest from stdout if present
         BacktestResult? backtest = null;
