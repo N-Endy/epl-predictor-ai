@@ -156,7 +156,7 @@ public class PredictorService
 
     private const string DefaultCsvFileName = "epl.csv";
 
-    public async Task<PredictionSession> PredictAsync(Stream csvStream, int backtestRound = 9, CancellationToken ct = default)
+    public async Task<PredictionSession> PredictAsync(Stream csvStream, int backtestRound = 0, CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
         _log.LogInformation("PredictAsync: starting. backtestRound={BacktestRound}", backtestRound);
@@ -171,7 +171,7 @@ public class PredictorService
         return result;
     }
 
-    public async Task<PredictionSession> PredictFromFileIfExistsAsync(string wwwrootPath, int backtestRound = 9)
+    public async Task<PredictionSession> PredictFromFileIfExistsAsync(string wwwrootPath, int backtestRound = 0)
     {
         var sw = Stopwatch.StartNew();
         var filePath = Path.Combine(wwwrootPath, DefaultCsvFileName);

@@ -143,7 +143,7 @@
             StateHasChanged();
             var file = e.File;
             await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
-            Session = await Predictor.PredictAsync(stream, BacktestRound);
+            Session = await Predictor.PredictAsync(stream, backtestRound: 0);
             Status = "✅ " + Session.InfoMessage;
             Logger.LogInformation("OnFileSelected: completed successfully");
         }
@@ -163,7 +163,7 @@
             StateHasChanged();
             await Task.Delay(100);
             
-            Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, BacktestRound);
+            Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, backtestRound: 0);
             
             Status = "✅ " + Session.InfoMessage;
             Logger.LogInformation("PredictFromBundled: completed");
