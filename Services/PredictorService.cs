@@ -345,6 +345,10 @@ public class PredictorService
         {
             predsList = ParsePredictionsCsv(predsCsvPath);
         }
+        // Added newly
+        predsList = predsList
+            .Select(p => p with { Round = nextRound })
+            .ToList();
 
         // Parse backtest from stdout if present
         BacktestResult? backtest = null;
@@ -401,33 +405,106 @@ public class PredictorService
             writer.WriteLine($"{m.MatchNumber},{m.RoundNumber},{m.Date:dd/MM/yyyy HH:mm},{m.HomeTeam},{m.AwayTeam},{m.Location},{m.Result ?? ""}");
         }
     }
-
+    
     private List<FixturePrediction> ParsePredictionsCsv(string path)
     {
         var result = new List<FixturePrediction>();
-        var lines = File.ReadAllLines(path);
-        if (lines.Length <= 1) return result;
 
-        var header = lines[0].Split(',');
-        var headers = new Dictionary<string, int>();
-        for (int i = 0; i < header.Length; i++) headers[header[i]] = i;
-
-        for (int i = 1; i < lines.Length; i++)
+        try
         {
-            var parts = lines[i].Split(',');
-            if (parts.Length < headers.Count) continue;
+            var lines = File.ReadAllLines(path);
+            if (lines.Length <= 1) return result;
 
-            var home = parts[headers["Home Team"]];
-            var away = parts[headers["Away Team"]];
-            var kickoff = DateTime.Parse(parts[headers["Date"]]);
-            var round = int.Parse(parts[headers["Round Number"]]);
-            var pred = parts[headers["PredictedOutcome"]];
-            var maxProb = Math.Max(float.Parse(parts[headers["pH"]]), Math.Max(float.Parse(parts[headers["pD"]]), float.Parse(parts[headers["pA"]])));
-            result.Add(new FixturePrediction(home, away, kickoff, round, pred, maxProb));
+            var header = lines[0].Split(',');
+            var headers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < header.Length; i++) headers[header[i].Trim()] = i;
+
+            bool hasNewSchema =
+                headers.ContainsKey("HomeTeam") &&
+                headers.ContainsKey("AwayTeam") &&
+                headers.ContainsKey("Kickoff") &&
+                headers.ContainsKey("PredictedOutcome");
+
+            bool hasOldSchema =
+                headers.ContainsKey("Home Team") &&
+                headers.ContainsKey("Away Team") &&
+                headers.ContainsKey("Date") &&
+                headers.ContainsKey("PredictedOutcome");
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                var parts = lines[i].Split(',');
+                if (parts.Length < header.Length) continue;
+
+                if (hasNewSchema)
+                {
+                    var home = parts[headers["HomeTeam"]];
+                    var away = parts[headers["AwayTeam"]];
+                    var kickoff = DateTime.Parse(parts[headers["Kickoff"]]);
+                    var pred = parts[headers["PredictedOutcome"]];
+
+                    var pH = float.Parse(parts[headers["HomeWinProb"]]);
+                    var pD = float.Parse(parts[headers["DrawProb"]]);
+                    var pA = float.Parse(parts[headers["AwayWinProb"]]);
+                    var maxProb = Math.Max(pH, Math.Max(pD, pA));
+
+                    // Your python file doesn’t include Round Number in this schema
+                    result.Add(new FixturePrediction(home, away, kickoff, 0, pred, maxProb));
+                }
+                else if (hasOldSchema)
+                {
+                    var home = parts[headers["Home Team"]];
+                    var away = parts[headers["Away Team"]];
+                    var kickoff = DateTime.Parse(parts[headers["Date"]]);
+                    var round = int.Parse(parts[headers["Round Number"]]);
+                    var pred = parts[headers["PredictedOutcome"]];
+
+                    var pH = float.Parse(parts[headers["pH"]]);
+                    var pD = float.Parse(parts[headers["pD"]]);
+                    var pA = float.Parse(parts[headers["pA"]]);
+                    var maxProb = Math.Max(pH, Math.Max(pD, pA));
+
+                    result.Add(new FixturePrediction(home, away, kickoff, round, pred, maxProb));
+                }
+            }
+
+            _log.LogInformation("ParsePredictionsCsv: loaded {Count} predictions from {Path}", result.Count, path);
+            return result;
         }
-
-        return result;
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "ParsePredictionsCsv failed for {Path}", path);
+            return new List<FixturePrediction>();
+        }
     }
+
+
+    // private List<FixturePrediction> ParsePredictionsCsv(string path)
+    // {
+    //     var result = new List<FixturePrediction>();
+    //     var lines = File.ReadAllLines(path);
+    //     if (lines.Length <= 1) return result;
+    //
+    //     var header = lines[0].Split(',');
+    //     var headers = new Dictionary<string, int>();
+    //     for (int i = 0; i < header.Length; i++) headers[header[i]] = i;
+    //
+    //     for (int i = 1; i < lines.Length; i++)
+    //     {
+    //         var parts = lines[i].Split(',');
+    //         if (parts.Length < headers.Count) continue;
+    //
+    //         var home = parts[headers["Home Team"]];
+    //         var away = parts[headers["Away Team"]];
+    //         var kickoff = DateTime.Parse(parts[headers["Date"]]);
+    //         var round = int.Parse(parts[headers["Round Number"]]);
+    //         var pred = parts[headers["PredictedOutcome"]];
+    //         var maxProb = Math.Max(float.Parse(parts[headers["pH"]]), Math.Max(float.Parse(parts[headers["pD"]]), float.Parse(parts[headers["pA"]])));
+    //         result.Add(new FixturePrediction(home, away, kickoff, round, pred, maxProb));
+    //     }
+    //
+    //     return result;
+    // }
 
     // ------------------------------
     // CSV loader

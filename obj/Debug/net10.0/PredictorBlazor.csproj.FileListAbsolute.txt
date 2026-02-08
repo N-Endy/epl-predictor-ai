@@ -548,3 +548,4 @@
 /Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/obj/Debug/net10.0/compressed/4lgxoa6l1f-{0}-e77k3k31kz-e77k3k31kz.gz
 /Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/obj/Debug/net10.0/compressed/8z4r8tqlff-{0}-ejqopj06ic-ejqopj06ic.gz
 /Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/obj/Debug/net10.0/compressed/mez46cm45l-{0}-zj0ai9n57x-zj0ai9n57x.gz
+/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/obj/Debug/net10.0/PredictorBlazor.sourcelink.json
