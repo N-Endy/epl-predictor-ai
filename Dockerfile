@@ -35,7 +35,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Bring the published app forward
 COPY --from=build /out ./
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:10000
-EXPOSE 10000
+COPY --from=build /app/predict.py /app/predict.py
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
+EXPOSE 80
 
 ENTRYPOINT ["dotnet", "PredictorBlazor.dll"]
