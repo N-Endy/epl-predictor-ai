@@ -8,3 +8,4 @@ services:
             value: Production
           - key: PYTHONUNBUFFERED
             value: "1"
+        

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using PredictorBlazor.Components;
 using PredictorBlazor.Services;
 
@@ -9,6 +10,10 @@ builder.Services.AddRazorComponents()
 
 // Predictor service for ML and CSV processing
 builder.Services.AddSingleton<PredictorService>();
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/var/data/dpkeys"))
+    .SetApplicationName("PredictorBlazor");
 
 // Verbose logging for diagnostics
 builder.Logging.SetMinimumLevel(LogLevel.Debug);

@@ -349,6 +349,8 @@ public class PredictorService
         predsList = predsList
             .Select(p => p with { Round = nextRound })
             .ToList();
+        
+        _log.LogInformation("Looking for predictions at {Path}. Exists={Exists}", predsCsvPath, File.Exists(predsCsvPath));
 
         // Parse backtest from stdout if present
         BacktestResult? backtest = null;
