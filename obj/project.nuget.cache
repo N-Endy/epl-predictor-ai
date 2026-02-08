@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "BfNNYV8woTs=",
+  "success": true,
+  "projectFilePath": "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/PredictorBlazor.csproj",
+  "expectedPackageFiles": [
+    "/Users/nnamdi/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.0/microsoft.aspnetcore.app.internal.assets.10.0.0.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/microsoft.ml/3.0.1/microsoft.ml.3.0.1.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/microsoft.ml.cpumath/3.0.1/microsoft.ml.cpumath.3.0.1.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/microsoft.ml.dataview/3.0.1/microsoft.ml.dataview.3.0.1.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/system.codedom/4.5.0/system.codedom.4.5.0.nupkg.sha512",
+    "/Users/nnamdi/.nuget/packages/system.numerics.tensors/8.0.0/system.numerics.tensors.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

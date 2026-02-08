@@ -1,0 +1,85 @@
+﻿@page "/"
+
+<PageTitle>EPL Predictor AI - Home</PageTitle>
+
+<div class="hero-section fade-in">
+    <h1 class="hero-title">⚽ EPL Predictor AI</h1>
+    <p class="hero-subtitle">Advanced Machine Learning for Premier League Match Predictions</p>
+    <div class="d-flex gap-3 justify-content-center mt-4">
+        <a href="/predict" class="btn btn-custom-primary">Make Predictions</a>
+        <a href="/backtest" class="btn btn-custom-secondary">View Backtest Results</a>
+    </div>
+</div>
+
+<div class="feature-grid">
+    <div class="feature-card slide-in">
+        <div class="feature-icon">🧠</div>
+        <h3 class="feature-title">AI-Powered</h3>
+        <p class="feature-description">
+            Enhanced Random Forest model with 500 estimators, head-to-head records, and form tracking for superior accuracy.
+        </p>
+    </div>
+
+    <div class="feature-card slide-in" style="animation-delay: 0.1s;">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Advanced Features</h3>
+        <p class="feature-description">
+            Leverages Elo ratings, rolling statistics, venue performance, and 30+ features to predict match outcomes.
+        </p>
+    </div>
+
+    <div class="feature-card slide-in" style="animation-delay: 0.2s;">
+        <div class="feature-icon">🎯</div>
+        <h3 class="feature-title">60%+ Accuracy</h3>
+        <p class="feature-description">
+            Optimized hyperparameters and balanced class weights deliver consistent 60%+ prediction accuracy.
+        </p>
+    </div>
+
+    <div class="feature-card slide-in" style="animation-delay: 0.3s;">
+        <div class="feature-icon">📈</div>
+        <h3 class="feature-title">Backtest Validation</h3>
+        <p class="feature-description">
+            Test model performance on historical rounds to validate predictions before using them for future matches.
+        </p>
+    </div>
+</div>
+
+<div class="custom-card mt-5">
+    <div class="custom-card-header">
+        <h2 class="custom-card-title">How It Works</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <span class="stats-value">1</span>
+                <span class="stats-label">Upload Data</span>
+            </div>
+            <p class="text-center mt-3" style="color: var(--text-secondary);">
+                Upload your EPL CSV file with match history and upcoming fixtures
+            </p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <span class="stats-value">2</span>
+                <span class="stats-label">AI Analysis</span>
+            </div>
+            <p class="text-center mt-3" style="color: var(--text-secondary);">
+                Machine learning model analyzes 30+ features including form, H2H, and Elo ratings
+            </p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <span class="stats-value">3</span>
+                <span class="stats-label">Get Predictions</span>
+            </div>
+            <p class="text-center mt-3" style="color: var(--text-secondary);">
+                Receive match outcome predictions with confidence scores for each fixture
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="custom-alert custom-alert-info mt-4">
+    <strong>💡 Pro Tip:</strong> Use the backtest feature to evaluate model accuracy on past rounds before relying on predictions for upcoming matches.
+</div>

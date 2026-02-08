@@ -1,0 +1,59 @@
+
+================================================================================
+🔍 WALK-FORWARD BACKTEST: Rounds 21 to 24
+================================================================================
+
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 21: 20.0% (2/10) [trained on 200 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 22: 30.0% (3/10) [trained on 210 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 23: 50.0% (5/10) [trained on 220 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 24: 30.0% (3/10) [trained on 230 matches]
+
+================================================================================
+📊 OVERALL ACCURACY: 32.50%
+================================================================================
+Rounds tested: 4
+Total predictions: 40
+Total correct: 13
+
+================================================================================
+📈 DETAILED BREAKDOWN
+================================================================================
+
+              precision    recall  f1-score   support
+
+    Home Win       0.11      0.10      0.11        10
+        Draw       0.36      0.36      0.36        14
+    Away Win       0.41      0.44      0.42        16
+
+    accuracy                           0.33        40
+   macro avg       0.29      0.30      0.30        40
+weighted avg       0.32      0.33      0.32        40
+
+
+📉 Confusion Matrix:
+          Predicted
+           H    D    A
+Actual H [  7   7   2]
+       D [  3   5   6]
+       A [  7   2   1]
+
+✅ Per-Outcome Accuracy:
+   Home Win: 43.8%
+   Draw:     35.7%
+   Away Win: 10.0%

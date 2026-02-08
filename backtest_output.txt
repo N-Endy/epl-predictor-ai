@@ -1,0 +1,17 @@
+Loading 2025 season data...
+Traceback (most recent call last):
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/predict.py", line 833, in <module>
+    main()
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/predict.py", line 686, in main
+    epl_raw_2025 = pd.read_csv("epl.csv")
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/.venv/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/.venv/lib/python3.9/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: 'epl.csv'

@@ -1,0 +1,4 @@
+  File "/Users/nnamdi/Desktop/Mine/EPL-AUTOMATED-PREDICTOR/PredictorBlazor/predict.py", line 709
+    \ndef main():
+                ^
+SyntaxError: unexpected character after line continuation character

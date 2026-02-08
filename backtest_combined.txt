@@ -1,0 +1,92 @@
+Loading 2025 season data...
+Loading 2024 season data for enhanced training...
+Note: 2024 season data not found, using 2025 only
+
+================================================================================
+🔍 WALK-FORWARD BACKTEST: Rounds 15 to 24
+================================================================================
+
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 15: 50.0% (5/10) [trained on 140 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 16: 30.0% (3/10) [trained on 150 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 17: 40.0% (4/10) [trained on 160 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 18: 80.0% (8/10) [trained on 170 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 19: 30.0% (3/10) [trained on 180 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 20: 40.0% (4/10) [trained on 190 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 21: 20.0% (2/10) [trained on 200 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 22: 30.0% (3/10) [trained on 210 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 23: 50.0% (5/10) [trained on 220 matches]
+XGBoost not available (XGBoostError), falling back to Random Forest
+  Hint: On Mac, run 'brew install libomp' to enable XGBoost
+Training Random Forest...
+Random Forest trained successfully.
+Round 24: 30.0% (3/10) [trained on 230 matches]
+
+================================================================================
+📊 OVERALL ACCURACY: 40.00%
+================================================================================
+Rounds tested: 10
+Total predictions: 100
+Total correct: 40
+
+================================================================================
+📈 DETAILED BREAKDOWN
+================================================================================
+
+              precision    recall  f1-score   support
+
+    Home Win       0.37      0.42      0.39        26
+        Draw       0.36      0.23      0.28        35
+    Away Win       0.44      0.54      0.48        39
+
+    accuracy                           0.40       100
+   macro avg       0.39      0.40      0.39       100
+weighted avg       0.39      0.40      0.39       100
+
+
+📉 Confusion Matrix:
+          Predicted
+           H    D    A
+Actual H [ 21  10   8]
+       D [ 16   8  11]
+       A [ 11   4  11]
+
+✅ Per-Outcome Accuracy:
+   Home Win: 53.8%
+   Draw:     22.9%
+   Away Win: 42.3%

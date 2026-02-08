@@ -1,0 +1,609 @@
+/* ============================================
+   EPL Predictor Custom Styles
+   Modern Football-Themed Design System
+   ============================================ */
+
+:root {
+    /* Color Palette - Football Theme */
+    --primary-green: #00d084;
+    --primary-green-dark: #00a368;
+    --primary-green-light: #4dffb8;
+    --accent-blue: #0066ff;
+    --accent-blue-dark: #0052cc;
+    --bg-dark: #0a0e14;
+    --bg-card: #161b22;
+    --bg-card-hover: #1c2128;
+    --text-primary: #ffffff;
+    --text-secondary: #8b949e;
+    --success: #2ea44f;
+    --warning: #f0ad4e;
+    --danger: #d73a49;
+    --border-color: #30363d;
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+    --shadow-glow: 0 0 20px rgba(0, 208, 132, 0.3);
+}
+
+/* ============================================
+   Global Styles
+   ============================================ */
+
+body {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #161b22 100%);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================================
+   Card Components
+   ============================================ */
+
+.custom-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    margin-bottom: var(--spacing-md);
+}
+
+.custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-green);
+}
+
+.custom-card-header {
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.custom-card-title {
+    color: var(--primary-green);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #1a1f26 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-glow);
+}
+
+.stats-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    display: block;
+}
+
+.stats-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn-custom-primary {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-custom-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+    background: linear-gradient(135deg, var(--primary-green-light) 0%, var(--primary-green) 100%);
+}
+
+.btn-custom-secondary {
+    background: transparent;
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-custom-secondary:hover {
+    background: var(--primary-green);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+
+.custom-table {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.custom-table thead {
+    background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--accent-blue-dark) 100%);
+}
+
+.custom-table thead th {
+    background: var(--bg-card);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    padding: 1rem;
+    border: none;
+}
+
+.custom-table tbody {
+    background: var(--bg-card);
+}
+
+.custom-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    background: var(--bg-card);
+}
+
+.custom-table tbody tr:hover {
+    background: var(--bg-card-hover);
+}
+
+.custom-table tbody td {
+    padding: 1rem;
+    color: var(--text-primary);
+    border: none;
+    background: transparent;
+}
+
+.custom-table tbody td strong {
+    color: var(--text-primary);
+}
+
+/* Ensure all tables in our app have dark backgrounds */
+.table {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.table tbody {
+    background: var(--bg-card);
+}
+
+.table tbody tr {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.table tbody td,
+.table tbody th {
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.table tbody td strong {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Prediction Badges
+   ============================================ */
+
+.prediction-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.prediction-home {
+    background: linear-gradient(135deg, var(--success) 0%, #24853e 100%);
+    color: white;
+}
+
+.prediction-away {
+    background: linear-gradient(135deg, var(--danger) 0%, #b02a37 100%);
+    color: white;
+}
+
+.prediction-badge.prediction-draw {
+    background: linear-gradient(135deg, var(--warning) 0%, #f0ad4e 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+/* Neutral styling for predicted outcomes to avoid confusion with correctness */
+.prediction-badge.prediction-neutral {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+/* Actual outcome badges with distinct styling (green/red/yellow) */
+.actual-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.actual-badge.actual-home {
+    background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    color: white;
+}
+
+.actual-badge.actual-away {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc3545 100%);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: white;
+}
+
+.actual-badge.actual-draw {
+    background: linear-gradient(135deg, var(--warning) 0%, #f0ad4e 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+/* Predicted outcome badges with distinct colors (blue/purple/orange tones) */
+.predicted-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.predicted-badge.predicted-h {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    color: white;
+}
+
+.predicted-badge.predicted-a {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    border: 1px solid rgba(155, 89, 182, 0.3);
+    color: white;
+}
+
+.predicted-badge.predicted-d {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    border: 1px solid rgba(230, 126, 34, 0.3);
+    color: white;
+}
+
+
+/* ============================================
+   Form Inputs
+   ============================================ */
+
+.custom-input,
+input.custom-input,
+.form-control.custom-input,
+input[type="number"].custom-input,
+input[type="text"].custom-input {
+    background: var(--bg-card) !important;
+    border: 2px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus,
+input.custom-input:focus,
+.form-control.custom-input:focus {
+    border-color: var(--primary-green) !important;
+    box-shadow: 0 0 0 3px rgba(0, 208, 132, 0.1) !important;
+    outline: none;
+    background: var(--bg-card-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Placeholder styling */
+.custom-input::placeholder,
+input.custom-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* File input styling */
+input[type="file"],
+.form-control[type="file"] {
+    color: var(--text-primary) !important;
+    background: var(--bg-card) !important;
+}
+
+input[type="file"]::file-selector-button {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: var(--primary-green-dark);
+}
+
+.custom-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Alerts
+   ============================================ */
+
+.custom-alert {
+    border-radius: var(--radius-md);
+    padding: 1rem 1.5rem;
+    border-left: 4px solid;
+    margin-bottom: var(--spacing-md);
+}
+
+.custom-alert-info {
+    background: rgba(0, 102, 255, 0.1);
+    border-left-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+
+.custom-alert-success {
+    background: rgba(46, 164, 79, 0.1);
+    border-left-color: var(--success);
+    color: var(--text-primary);
+}
+
+.custom-alert-warning {
+    background: rgba(240, 173, 78, 0.1);
+    border-left-color: var(--warning);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
+.hero-section {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    background: linear-gradient(135deg, rgba(0, 208, 132, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ============================================
+   Feature Cards
+   ============================================ */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-glow);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.feature-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+
+.loading-spinner {
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-green);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Accuracy Meter
+   ============================================ */
+
+.accuracy-meter {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.accuracy-bar {
+    height: 8px;
+    border-radius: var(--radius-sm);
+    background: var(--border-color);
+    overflow: hidden;
+    position: relative;
+}
+
+.accuracy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 50%, var(--success) 100%);
+    transition: width 0.5s ease;
+    border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+}
+
+/* ============================================
+   Animation Utilities
+   ============================================ */
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

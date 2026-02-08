@@ -1,0 +1,227 @@
+@page "/predict"
+@using PredictorBlazor.Services
+@rendermode InteractiveServer
+@inject PredictorService Predictor
+@inject IWebHostEnvironment Env
+@inject ILogger<Predict> Logger
+
+<PageTitle>Predictions - EPL Predictor AI</PageTitle>
+
+<h1>🎯 EPL Match Predictions</h1>
+
+<!-- Upload and Configuration Card -->
+<div class="custom-card">
+    <div class="custom-card-header">
+        <h2 class="custom-card-title">Data Configuration</h2>
+    </div>
+    
+    <div class="row g-3 mb-3">
+        <div class="col-md-12">
+            <label class="custom-label">Upload EPL CSV File</label>
+            <InputFile OnChange="OnFileSelected" accept=".csv" class="form-control custom-input" />
+            <div class="mt-2" style="color: var(--text-secondary); font-size: 0.875rem;">
+                📄 Format: Match Number, Round Number, Date, Home Team, Away Team, Location, Result<br/>
+                📅 Date format: dd/MM/yyyy HH:mm | Unplayed fixtures should have empty Result
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        @* Removed backtest field - use dedicated Backtest page instead *@
+        <div class="col-md-12 d-flex align-items-end gap-2 flex-wrap">
+            <button class="btn btn-custom-primary" @onclick="PredictFromBundled">
+                🔮 Generate Predictions
+            </button>
+            <button class="btn btn-custom-secondary" @onclick="UpdateFixtures">
+                🔄 Update Fixtures
+            </button>
+            <button class="btn btn-outline-secondary" @onclick="Clear">
+                🗑️ Clear
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Status Messages -->
+@if (!string.IsNullOrWhiteSpace(Status))
+{
+    <div class="custom-alert custom-alert-info">
+        <strong>ℹ️ Status:</strong> @Status
+    </div>
+}
+
+<!-- Results Section -->
+@if (Session is not null)
+{
+    <!-- Session Info Card -->
+    <div class="custom-card fade-in">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <span class="stats-value">Round @Session.LastCompletedRound</span>
+                    <span class="stats-label">Last Completed</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <span class="stats-value">Round @Session.NextRound</span>
+                    <span class="stats-label">Predicting</span>
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Session.InfoMessage))
+        {
+            <div class="mt-3" style="color: var(--text-secondary); text-align: center;">
+                @Session.InfoMessage
+            </div>
+        }
+    </div>
+
+    <!-- Next Round Predictions -->
+    @if (Session.NextRoundPredictions?.Count > 0)
+    {
+        <div class="custom-card fade-in">
+            <div class="custom-card-header">
+                <h2 class="custom-card-title">⚡ Round @Session.NextRound Predictions</h2>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                Predictions are based on current form, head-to-head records, Elo ratings, and 30+ advanced features.
+            </p>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Kickoff</th>
+                            <th>Home Team</th>
+                            <th>Away Team</th>
+                            <th>Prediction</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Session.NextRoundPredictions.OrderBy(x => x.Kickoff))
+                        {
+                            <tr>
+                                <td>@p.Kickoff.ToString("MMM dd, HH:mm")</td>
+                                <td><strong>@p.HomeTeam</strong></td>
+                                <td><strong>@p.AwayTeam</strong></td>
+                                <td>
+                                    <span class="predicted-badge predicted-@p.PredictedOutcome.ToLower()">
+                                        @OutcomeText(p.PredictedOutcome)
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="accuracy-bar" style="width: 100px; height: 6px;">
+                                            <div class="accuracy-fill" style="width: @((p.Probability * 100).ToString("0"))%"></div>
+                                        </div>
+                                        <span style="color: var(--primary-green); font-weight: 600;">
+                                            @p.Probability.ToString("P0")
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private PredictionSession? Session { get; set; }
+    private int BacktestRound { get; set; } = 9;
+    private string? Status { get; set; }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            Logger.LogInformation("OnFileSelected: starting upload. File={Name} Size={Size}", e.File?.Name, e.File?.Size);
+            Status = "⏳ Processing CSV... This may take a few moments.";
+            StateHasChanged();
+            var file = e.File;
+            await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            Session = await Predictor.PredictAsync(stream, BacktestRound);
+            Status = "✅ " + Session.InfoMessage;
+            Logger.LogInformation("OnFileSelected: completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "OnFileSelected: error");
+            Status = $"❌ Error: {ex.Message}";
+        }
+    }
+
+    private async Task PredictFromBundled()
+    {
+        try
+        {
+            Logger.LogInformation("PredictFromBundled: starting");
+            Status = "⏳ Loading wwwroot/epl.csv and running predictions...";
+            StateHasChanged();
+            await Task.Delay(100);
+            
+            Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, BacktestRound);
+            
+            Status = "✅ " + Session.InfoMessage;
+            Logger.LogInformation("PredictFromBundled: completed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "PredictFromBundled: error");
+            Status = $"❌ Error: {ex.Message}";
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task UpdateFixtures()
+    {
+        try
+        {
+            Logger.LogInformation("UpdateFixtures: starting");
+            Status = "⏳ Downloading latest fixtures from fixturedownload.com...";
+            StateHasChanged();
+            await Task.Delay(100);
+            await Predictor.UpdateFixturesAsync(Env.WebRootPath);
+            Status = "✅ Fixtures updated successfully! Click 'Generate Predictions' to generate predictions.";
+            Logger.LogInformation("UpdateFixtures: completed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "UpdateFixtures: failed");
+            Status = $"❌ Error updating fixtures: {ex.Message}";
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void Clear()
+    {
+        Logger.LogInformation("Clear: resetting page state");
+        Session = null;
+        Status = null;
+    }
+
+    private string OutcomeText(string c) => c switch
+    {
+        "H" => "Home Win",
+        "A" => "Away Win",
+        "D" => "Draw",
+        _ => c
+    };
+
+    private string GetPredictionClass(string outcome) => outcome.ToLower() switch
+    {
+        "h" => "home",
+        "a" => "away",
+        "d" => "draw",
+        _ => "draw"
+    };
+}

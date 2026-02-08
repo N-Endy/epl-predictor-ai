@@ -1,0 +1,211 @@
+@page "/backtest"
+@using PredictorBlazor.Services
+@rendermode InteractiveServer
+@inject PredictorService Predictor
+@inject IWebHostEnvironment Env
+@inject ILogger<Backtest> Logger
+
+<PageTitle>Backtest - EPL Predictor AI</PageTitle>
+
+<h1>📊 Model Backtest Analysis</h1>
+
+<div class="custom-card">
+    <div class="custom-card-header">
+        <h2 class="custom-card-title">Test Model Performance</h2>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+        Evaluate the prediction model's accuracy on completed rounds. Select a round to see detailed match-by-match predictions vs actual results.
+    </p>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <label class="custom-label">Select Round to Backtest</label>
+            <input class="form-control custom-input" type="number" min="1" max="38" @bind="SelectedRound" placeholder="Enter round number (1-38)" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-custom-primary w-100" @onclick="RunBacktest">
+                Run Backtest
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (IsLoading)
+{
+    <div class="custom-card text-center">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--text-secondary); margin-top: var(--spacing-md);">
+            Running backtest... This may take a few moments.
+        </p>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="custom-alert custom-alert-warning">
+        <strong>⚠️ Warning:</strong> @ErrorMessage
+    </div>
+}
+
+@if (BacktestResult is not null)
+{
+    <div class="custom-card fade-in">
+        <div class="custom-card-header">
+            <h2 class="custom-card-title">Round @BacktestResult.Round Results</h2>
+        </div>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <span class="stats-value">@BacktestResult.Correct / @BacktestResult.Total</span>
+                    <span class="stats-label">Correct Predictions</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <span class="stats-value" style="color: @GetAccuracyColor(BacktestResult.Accuracy)">
+                        @BacktestResult.Accuracy.ToString("0.0%")
+                    </span>
+                    <span class="stats-label">Accuracy Rate</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <span class="stats-value">Round @BacktestResult.Round</span>
+                    <span class="stats-label">Test Round</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accuracy Meter -->
+        <div class="accuracy-meter mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color: var(--text-secondary); font-size: 0.875rem;">Model Performance</span>
+                <span style="color: var(--primary-green); font-weight: 600;">@BacktestResult.Accuracy.ToString("0.0%")</span>
+            </div>
+            <div class="accuracy-bar">
+                <div class="accuracy-fill" style="width: @((BacktestResult.Accuracy * 100).ToString("0"))%"></div>
+            </div>
+        </div>
+
+        <!-- Match Results Table -->
+        <h3 style="color: var(--text-primary); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md);">
+            Match-by-Match Analysis
+        </h3>
+        <div class="table-responsive">
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Match</th>
+                        <th>Predicted</th>
+                        <th>Actual</th>
+                        <th>Confidence</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in BacktestResult.Items.OrderBy(x => x.Kickoff))
+                    {
+                        var isCorrect = item.ActualOutcome == item.PredictedOutcome;
+                        <tr>
+                            <td>@item.Kickoff.ToString("MMM dd, HH:mm")</td>
+                            <td>@item.Result</td>
+                            <td>
+                                <strong>@item.HomeTeam</strong> vs <strong>@item.AwayTeam</strong>
+                            </td>
+                            <td>
+                                <span class="predicted-badge predicted-@item.PredictedOutcome.ToLower()">
+                                    @OutcomeText(item.PredictedOutcome)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="predicted-badge predicted-@item.ActualOutcome.ToLower()">
+                                    @OutcomeText(item.ActualOutcome)
+                                </span>
+                            </td>
+                            <td>@item.Probability.ToString("P0")</td>
+                            <td>
+                                @if (isCorrect)
+                                {
+                                    <span style="color: var(--success); font-weight: 600;">✓ Correct</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--danger); font-weight: 600;">✗ Wrong</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private int SelectedRound { get; set; } = 9;
+    private BacktestResult? BacktestResult { get; set; }
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    private async Task RunBacktest()
+    {
+        try
+        {
+            ErrorMessage = null;
+            IsLoading = true;
+            StateHasChanged();
+            await Task.Delay(100);
+
+            Logger.LogInformation("RunBacktest: Starting for round {Round}", SelectedRound);
+            
+            var session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, SelectedRound);
+            
+            if (session.Backtest is not null)
+            {
+                BacktestResult = session.Backtest;
+                Logger.LogInformation("RunBacktest: Completed. Accuracy={Accuracy}", BacktestResult.Accuracy);
+            }
+            else
+            {
+                ErrorMessage = session.InfoMessage ?? "No backtest data available for this round.";
+                Logger.LogWarning("RunBacktest: No backtest data for round {Round}", SelectedRound);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "RunBacktest: Error");
+            ErrorMessage = $"Error running backtest: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string OutcomeText(string outcome) => outcome switch
+    {
+        "H" => "Home Win",
+        "A" => "Away Win",
+        "D" => "Draw",
+        _ => outcome
+    };
+
+    private string GetPredictionClass(string outcome) => outcome.ToLower() switch
+    {
+        "h" => "home",
+        "a" => "away",
+        "d" => "draw",
+        _ => "draw"
+    };
+
+    private string GetAccuracyColor(double accuracy)
+    {
+        if (accuracy >= 0.6) return "var(--success)";
+        if (accuracy >= 0.5) return "var(--warning)";
+        return "var(--danger)";
+    }
+}
