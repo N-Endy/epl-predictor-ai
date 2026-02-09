@@ -12,7 +12,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<PredictorService>();
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/var/data/dpkeys"))
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/data"))
     .SetApplicationName("PredictorBlazor");
 
 // Verbose logging for diagnostics
