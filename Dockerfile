@@ -37,6 +37,9 @@ COPY --from=build /out ./
 
 COPY --from=build /app/predict.py /app/predict.py
 
+# Option 2: Use a dedicated directory (better for persistence)
+RUN mkdir -p /data/DataProtection-Keys && chmod 777 /data/DataProtection-Keys
+
 ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
 EXPOSE 80
 

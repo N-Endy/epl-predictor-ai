@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PredictorBlazor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ed418ae4fe1c24b53977cc69b1a7baab0a0bb8e8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d44620e7401106e59dd34819aba264ec2bc3cf9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("PredictorBlazor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PredictorBlazor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -4,6 +4,21 @@ using PredictorBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var keysPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "DataProtection-Keys");
+
+// Ensure the directory exists
+Directory.CreateDirectory(keysPath);
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+    .SetApplicationName("PredictorBlazor");
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -11,9 +26,9 @@ builder.Services.AddRazorComponents()
 // Predictor service for ML and CSV processing
 builder.Services.AddSingleton<PredictorService>();
 
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/app/data"))
-    .SetApplicationName("PredictorBlazor");
+// builder.Services.AddDataProtection()
+//     .PersistKeysToFileSystem(new DirectoryInfo("/app/data"))
+//     .SetApplicationName("PredictorBlazor");
 
 // Verbose logging for diagnostics
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
