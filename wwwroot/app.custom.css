@@ -55,7 +55,13 @@
    Global Reset & Typography
    ========================================================================== */
 
-* {
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+    width: 100%;
+}
+
+*, *::before, *::after {
     box-sizing: border-box;
 }
 
@@ -214,6 +220,8 @@ main {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0 !important;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
@@ -222,6 +230,20 @@ main {
     max-width: 1440px;
     width: 100%;
     margin: 0 auto;
+    overflow-x: hidden;
+}
+
+.hero-title {
+    font-size: clamp(1.75rem, 5vw, 2.85rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.search-filter-input {
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.85rem !important;
+    width: 180px;
 }
 
 .glass-card {
@@ -620,20 +642,6 @@ main {
     to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 991.98px) {
-    .page {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .content-wrapper {
-        padding: 1.25rem 1rem;
-    }
-}
-
 /* ==========================================================================
    Skeleton Shimmer Loaders & Advanced Feedback UX
    ========================================================================== */
@@ -722,4 +730,190 @@ main {
     background: var(--brand-primary);
     box-shadow: 0 0 10px var(--brand-primary);
     animation: pulse 1.5s infinite;
+}
+
+/* ==========================================================================
+   Mobile & Responsive Layout System (Zero-Overflow Architecture)
+   ========================================================================== */
+
+/* Tablet & Mobile Breakpoint (< 992px) */
+@media (max-width: 991.98px) {
+    .page {
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .sidebar-header {
+        padding: 0.85rem 1.15rem;
+    }
+
+    .content-wrapper {
+        padding: 1.25rem 1rem;
+    }
+
+    .glass-card {
+        padding: 1.35rem;
+    }
+}
+
+/* Standard Mobile Breakpoint (< 768px) */
+@media (max-width: 767.98px) {
+    .content-wrapper {
+        padding: 1rem 0.85rem;
+    }
+
+    .glass-card {
+        padding: 1.15rem 1rem;
+        border-radius: var(--radius-md);
+    }
+
+    .fixture-card {
+        padding: 1.15rem 1rem;
+        border-radius: var(--radius-md);
+    }
+
+    .filter-controls-row {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 0.75rem;
+    }
+
+    .filter-controls-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .search-filter-input {
+        width: 100% !important;
+    }
+
+    .w-100-mobile {
+        width: 100% !important;
+    }
+}
+
+/* Small Smartphone Breakpoint (< 576px) */
+@media (max-width: 575.98px) {
+    .content-wrapper {
+        padding: 0.75rem 0.6rem;
+    }
+
+    .glass-card {
+        padding: 0.95rem 0.75rem;
+    }
+
+    .fixture-card {
+        padding: 0.95rem 0.75rem;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Fixture Card Matchup: Stack teams vertically to eliminate horizontal overflow */
+    .team-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.55rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .team-profile {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .team-profile.justify-content-end {
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+    }
+
+    .team-name {
+        font-size: 0.95rem;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        min-width: 0;
+    }
+
+    .team-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .match-vs-divider {
+        display: none;
+    }
+
+    .match-header-meta {
+        font-size: 0.75rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .xg-badge {
+        font-size: 0.72rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .probs-bar-container {
+        padding: 0.6rem 0.65rem;
+        margin-top: 0.75rem;
+    }
+
+    .probs-bar-labels {
+        font-size: 0.7rem;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        justify-content: space-between;
+    }
+
+    .probs-bar-labels span {
+        white-space: nowrap;
+    }
+
+    .stat-widget {
+        padding: 0.85rem 0.65rem;
+    }
+
+    .stat-widget-value {
+        font-size: 1.35rem;
+    }
+
+    .stat-widget-label {
+        font-size: 0.68rem;
+    }
+
+    .stat-widget-sub {
+        font-size: 0.68rem;
+    }
+
+    .table-responsive {
+        border-radius: var(--radius-sm);
+        -webkit-overflow-scrolling: touch;
+    }
 }

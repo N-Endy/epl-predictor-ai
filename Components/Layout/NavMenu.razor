@@ -1,37 +1,45 @@
-<div class="sidebar-header">
-    <div class="brand-icon-box">⚽</div>
-    <div>
-        <div class="d-flex align-items-center gap-2">
-            <h1 class="brand-title">EPL AI</h1>
-            <span class="brand-badge">PRO</span>
+@rendermode InteractiveServer
+
+<div class="sidebar-header d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2">
+        <div class="brand-icon-box">⚽</div>
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h1 class="brand-title">EPL AI</h1>
+                <span class="brand-badge">PRO</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Premier League Predictor</div>
         </div>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">Premier League Predictor</div>
     </div>
+
+    <button class="btn btn-sm btn-brand-outline d-lg-none px-2.5 py-1" @onclick="ToggleNavMenu" aria-label="Toggle navigation">
+        <span style="font-size: 1.15rem; line-height: 1;">@(collapseNavMenu ? "☰" : "✕")</span>
+    </button>
 </div>
 
-<div class="nav-scrollable py-3 flex-grow-1">
+<div class="nav-scrollable py-2 flex-grow-1 @(collapseNavMenu ? "collapse d-lg-block" : "d-block")">
     <nav class="nav flex-column">
         <div class="nav-item">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All" @onclick="CloseNavMenu">
                 <span class="nav-icon fs-5">⚡</span> Dashboard
             </NavLink>
         </div>
 
         <div class="nav-item">
-            <NavLink class="nav-link" href="predict">
+            <NavLink class="nav-link" href="predict" @onclick="CloseNavMenu">
                 <span class="nav-icon fs-5">🎯</span> Match Predictions
             </NavLink>
         </div>
 
         <div class="nav-item">
-            <NavLink class="nav-link" href="backtest">
+            <NavLink class="nav-link" href="backtest" @onclick="CloseNavMenu">
                 <span class="nav-icon fs-5">📊</span> Walk-Forward Backtest
             </NavLink>
         </div>
     </nav>
 </div>
 
-<div class="sidebar-footer">
+<div class="sidebar-footer d-none d-lg-block">
     <div class="sidebar-status-pill">
         <span class="status-dot"></span>
         <div class="text-truncate">
@@ -40,3 +48,17 @@
         </div>
     </div>
 </div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void CloseNavMenu()
+    {
+        collapseNavMenu = true;
+    }
+}

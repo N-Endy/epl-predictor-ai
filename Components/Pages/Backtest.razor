@@ -83,7 +83,7 @@
 @if (BacktestResult is not null)
 {
     <!-- Performance Summary Cards -->
-    <div class="row g-3 mb-4 fade-in">
+    <div class="row g-2 g-md-3 mb-4 fade-in">
         <div class="col-12 col-md-4">
             <div class="stat-widget" style="border-color: rgba(16, 185, 129, 0.35);">
                 <div>
@@ -126,9 +126,9 @@
             </div>
 
             <!-- Filter Result Status -->
-            <div class="btn-group" role="group">
+            <div class="btn-group flex-wrap flex-grow-1" role="group">
                 <button type="button" class="btn btn-sm @(ResultFilter == "ALL" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => ResultFilter = "ALL"'>All (@BacktestResult.Items.Count)</button>
-                <button type="button" class="btn btn-sm @(ResultFilter == "CORRECT" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => ResultFilter = "CORRECT"'>Correct Only (@BacktestResult.Correct)</button>
+                <button type="button" class="btn btn-sm @(ResultFilter == "CORRECT" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => ResultFilter = "CORRECT"'>Correct (@BacktestResult.Correct)</button>
                 <button type="button" class="btn btn-sm @(ResultFilter == "WRONG" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => ResultFilter = "WRONG"'>Misses (@(BacktestResult.Total - BacktestResult.Correct))</button>
             </div>
         </div>

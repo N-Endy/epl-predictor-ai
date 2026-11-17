@@ -12,13 +12,13 @@
 <!-- Page Title Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-        <h1 class="mb-1" style="font-size: 2rem; font-weight: 800;">🎯 EPL Match Predictions</h1>
+        <h1 class="mb-1" style="font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800;">🎯 EPL Match Predictions</h1>
         <p class="text-secondary mb-0" style="font-size: 0.95rem;">
             Predicting upcoming Premier League fixtures via Dixon-Coles goal expectation and calibrated Tree Ensembles.
         </p>
     </div>
 
-    <div class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="page-header-actions d-flex align-items-center gap-2 flex-wrap">
         <button class="btn btn-brand-primary" @onclick="() => PredictFromBundled(true)" disabled="@IsLoading">
             @if (IsLoading)
             {
@@ -92,7 +92,7 @@
     </div>
 
     <!-- Shimmer Skeleton Match Cards -->
-    <div class="row g-3 mb-4 fade-in">
+    <div class="row g-2 g-md-3 mb-4 fade-in">
         @for (int i = 0; i < 4; i++)
         {
             <div class="col-12 col-lg-6">
@@ -150,7 +150,7 @@
 <!-- Session Info Widget Row -->
 @if (Session is not null)
 {
-    <div class="row g-3 mb-4 fade-in">
+    <div class="row g-2 g-md-3 mb-4 fade-in">
         <div class="col-12 col-md-4">
             <div class="stat-widget">
                 <div>
@@ -187,18 +187,18 @@
     {
         <div class="glass-card mb-4 fade-in" style="@(IsLoading ? "opacity: 0.55; pointer-events: none; transition: opacity 0.2s;" : "transition: opacity 0.2s;")">
             <!-- Filter & View Controls -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 pb-3 border-bottom" style="border-color: var(--border-subtle) !important;">
+            <div class="filter-controls-row d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 gap-md-3 pb-3 border-bottom" style="border-color: var(--border-subtle) !important;">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h2 class="fs-4 fw-bold mb-0 text-light me-2">⚽ Round @Session.NextRound Fixtures</h2>
+                    <h2 class="fs-5 fs-md-4 fw-bold mb-0 text-light me-2">⚽ Round @Session.NextRound Fixtures</h2>
                     <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1">@FilteredPredictions.Count() Matches</span>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="filter-controls-actions d-flex align-items-center gap-2 flex-wrap w-100-mobile">
                     <!-- Search Input -->
-                    <input type="text" class="custom-input" style="padding: 0.45rem 0.85rem !important; font-size: 0.85rem !important; width: 180px;" placeholder="Filter team..." @bind="SearchQuery" @bind:event="oninput" />
+                    <input type="text" class="custom-input search-filter-input" placeholder="Filter team..." @bind="SearchQuery" @bind:event="oninput" />
 
                     <!-- Outcome Filter Buttons -->
-                    <div class="btn-group" role="group">
+                    <div class="btn-group flex-grow-1" role="group">
                         <button type="button" class="btn btn-sm @(OutcomeFilter == "ALL" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("ALL")'>All</button>
                         <button type="button" class="btn btn-sm @(OutcomeFilter == "H" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("H")'>Home</button>
                         <button type="button" class="btn btn-sm @(OutcomeFilter == "D" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("D")'>Draw</button>
@@ -206,12 +206,12 @@
                     </div>
 
                     <!-- View Toggle -->
-                    <div class="btn-group ms-1" role="group">
+                    <div class="btn-group" role="group">
                         <button type="button" class="btn btn-sm @(ViewMode == "CARDS" ? "btn-brand-secondary" : "btn-brand-outline")" @onclick='() => ViewMode = "CARDS"' title="Card View">
-                            🔲 Cards
+                            🔲
                         </button>
                         <button type="button" class="btn btn-sm @(ViewMode == "TABLE" ? "btn-brand-secondary" : "btn-brand-outline")" @onclick='() => ViewMode = "TABLE"' title="Table View">
-                            📋 Table
+                            📋
                         </button>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
                                 </div>
 
                                 <!-- Prediction Verdict & Confidence -->
-                                <div class="d-flex justify-content-between align-items-center pt-2 pb-2">
+                                <div class="d-flex justify-content-between align-items-center pt-2 pb-2 flex-wrap gap-2">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="text-secondary small fw-semibold">AI Verdict:</span>
                                         <span class="prediction-pill @GetOutcomeClass(p.PredictedOutcome)">
