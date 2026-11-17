@@ -19,12 +19,13 @@ builder.Services.AddDataProtection()
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+// In-memory cache for prediction sessions
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 
-// Predictor service for ML and CSV processing
+// Predictor and AI services
 builder.Services.AddSingleton<PredictorService>();
+builder.Services.AddSingleton<LlmInsightService>();
 
 // builder.Services.AddDataProtection()
 //     .PersistKeysToFileSystem(new DirectoryInfo("/app/data"))

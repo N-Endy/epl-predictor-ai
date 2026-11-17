@@ -2,179 +2,371 @@
 @using PredictorBlazor.Services
 @rendermode InteractiveServer
 @inject PredictorService Predictor
+@inject LlmInsightService LlmInsight
 @inject IWebHostEnvironment Env
 @inject ILogger<Predict> Logger
 
-<PageTitle>Predictions - EPL Predictor AI</PageTitle>
+<PageTitle>Match Predictions - EPL Predictor AI</PageTitle>
 
-<h1>🎯 EPL Match Predictions</h1>
-
-<!-- Upload and Configuration Card -->
-<div class="custom-card">
-    <div class="custom-card-header">
-        <h2 class="custom-card-title">Data Configuration</h2>
-    </div>
-    
-    <div class="row g-3 mb-3">
-        <div class="col-md-12">
-            <label class="custom-label">Upload EPL CSV File</label>
-            <InputFile OnChange="OnFileSelected" accept=".csv" class="form-control custom-input" />
-            <div class="mt-2" style="color: var(--text-secondary); font-size: 0.875rem;">
-                📄 Format: Match Number, Round Number, Date, Home Team, Away Team, Location, Result<br/>
-                📅 Date format: dd/MM/yyyy HH:mm | Unplayed fixtures should have empty Result
-            </div>
-        </div>
+<!-- Page Title Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h1 class="mb-1" style="font-size: 2rem; font-weight: 800;">🎯 EPL Match Predictions</h1>
+        <p class="text-secondary mb-0" style="font-size: 0.95rem;">
+            Predicting upcoming Premier League fixtures via Dixon-Coles goal expectation and calibrated Tree Ensembles.
+        </p>
     </div>
 
-    <div class="row g-3 mb-3">
-        @* Removed backtest field - use dedicated Backtest page instead *@
-        <div class="col-md-12 d-flex align-items-end gap-2 flex-wrap">
-            <button class="btn btn-custom-primary" @onclick="PredictFromBundled">
-                🔮 Generate Predictions
-            </button>
-            <button class="btn btn-custom-secondary" @onclick="UpdateFixtures">
-                🔄 Update Fixtures
-            </button>
-            <button class="btn btn-outline-secondary" @onclick="Clear">
-                🗑️ Clear
-            </button>
-        </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-brand-primary" @onclick="() => PredictFromBundled(true)" disabled="@IsLoading">
+            @if (IsLoading)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                <span>Computing...</span>
+            }
+            else
+            {
+                <span>⚡ Generate Predictions</span>
+            }
+        </button>
+
+        <button class="btn btn-brand-secondary" @onclick="UpdateFixtures" disabled="@IsLoading">
+            🔄 Update Fixtures
+        </button>
+
+        <button class="btn btn-brand-outline" @onclick="SyncAllSeasons" disabled="@IsLoading" title="Download historical seasons plus the current campaign">
+            🌐 Sync Multi-Season Data
+        </button>
     </div>
 </div>
 
-<!-- Status Messages -->
+<!-- Status Banner -->
 @if (!string.IsNullOrWhiteSpace(Status))
 {
-    <div class="custom-alert custom-alert-info">
-        <strong>ℹ️ Status:</strong> @Status
+    <div class="glass-card mb-4 fade-in py-3 px-4 d-flex align-items-center gap-3" style="border-left: 4px solid var(--brand-cyan);">
+        <span style="font-size: 1.35rem;">ℹ️</span>
+        <div class="flex-grow-1" style="font-size: 0.925rem; font-weight: 500;">@Status</div>
     </div>
 }
 
-<!-- Results Section -->
+<!-- Session Info Widget Row -->
 @if (Session is not null)
 {
-    <!-- Session Info Card -->
-    <div class="custom-card fade-in">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="stats-card">
-                    <span class="stats-value">Round @Session.LastCompletedRound</span>
-                    <span class="stats-label">Last Completed</span>
+    <div class="row g-3 mb-4 fade-in">
+        <div class="col-12 col-md-4">
+            <div class="stat-widget">
+                <div>
+                    <div class="stat-widget-label">Last Completed Round</div>
+                    <div class="stat-widget-value text-secondary">Round @Session.LastCompletedRound</div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="stats-card">
-                    <span class="stats-value">Round @Session.NextRound</span>
-                    <span class="stats-label">Predicting</span>
-                </div>
+                <div class="stat-widget-sub">Finished scores analyzed</div>
             </div>
         </div>
-        @if (!string.IsNullOrEmpty(Session.InfoMessage))
-        {
-            <div class="mt-3" style="color: var(--text-secondary); text-align: center;">
-                @Session.InfoMessage
+
+        <div class="col-12 col-md-4">
+            <div class="stat-widget" style="border-color: rgba(16, 185, 129, 0.35);">
+                <div>
+                    <div class="stat-widget-label" style="color: var(--brand-primary);">Target Prediction Round</div>
+                    <div class="stat-widget-value" style="color: var(--brand-primary);">Round @Session.NextRound</div>
+                </div>
+                <div class="stat-widget-sub">Upcoming unplayed fixtures</div>
             </div>
-        }
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="stat-widget">
+                <div>
+                    <div class="stat-widget-label">Training Matches</div>
+                    <div class="stat-widget-value text-info">@Session.TotalMatchesTrained</div>
+                </div>
+                <div class="stat-widget-sub">Across @Session.LoadedSeasons.Count active season datasets</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Next Round Predictions -->
+    <!-- Predictions Container -->
     @if (Session.NextRoundPredictions?.Count > 0)
     {
-        <div class="custom-card fade-in">
-            <div class="custom-card-header">
-                <h2 class="custom-card-title">⚡ Round @Session.NextRound Predictions</h2>
+        <div class="glass-card mb-4 fade-in">
+            <!-- Filter & View Controls -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 pb-3 border-bottom" style="border-color: var(--border-subtle) !important;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h2 class="fs-4 fw-bold mb-0 text-light me-2">⚽ Round @Session.NextRound Fixtures</h2>
+                    <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1">@FilteredPredictions.Count() Matches</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Search Input -->
+                    <input type="text" class="custom-input" style="padding: 0.45rem 0.85rem !important; font-size: 0.85rem !important; width: 180px;" placeholder="Filter team..." @bind="SearchQuery" @bind:event="oninput" />
+
+                    <!-- Outcome Filter Buttons -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm @(OutcomeFilter == "ALL" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("ALL")'>All</button>
+                        <button type="button" class="btn btn-sm @(OutcomeFilter == "H" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("H")'>Home</button>
+                        <button type="button" class="btn btn-sm @(OutcomeFilter == "D" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("D")'>Draw</button>
+                        <button type="button" class="btn btn-sm @(OutcomeFilter == "A" ? "btn-brand-primary" : "btn-brand-outline")" @onclick='() => SetFilter("A")'>Away</button>
+                    </div>
+
+                    <!-- View Toggle -->
+                    <div class="btn-group ms-1" role="group">
+                        <button type="button" class="btn btn-sm @(ViewMode == "CARDS" ? "btn-brand-secondary" : "btn-brand-outline")" @onclick='() => ViewMode = "CARDS"' title="Card View">
+                            🔲 Cards
+                        </button>
+                        <button type="button" class="btn btn-sm @(ViewMode == "TABLE" ? "btn-brand-secondary" : "btn-brand-outline")" @onclick='() => ViewMode = "TABLE"' title="Table View">
+                            📋 Table
+                        </button>
+                    </div>
+                </div>
             </div>
-            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                Predictions are based on current form, head-to-head records, Elo ratings, and 30+ advanced features.
-            </p>
-            <div class="table-responsive">
-                <table class="table custom-table">
-                    <thead>
-                        <tr>
-                            <th>Kickoff</th>
-                            <th>Home Team</th>
-                            <th>Away Team</th>
-                            <th>Prediction</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var p in Session.NextRoundPredictions.OrderBy(x => x.Kickoff))
-                        {
-                            <tr>
-                                <td>@p.Kickoff.ToString("MMM dd, HH:mm")</td>
-                                <td><strong>@p.HomeTeam</strong></td>
-                                <td><strong>@p.AwayTeam</strong></td>
-                                <td>
-                                    <span class="predicted-badge predicted-@p.PredictedOutcome.ToLower()">
-                                        @OutcomeText(p.PredictedOutcome)
+
+            <!-- View Mode: Visual Cards -->
+            @if (ViewMode == "CARDS")
+            {
+                <div class="row g-3">
+                    @foreach (var p in FilteredPredictions.OrderBy(x => x.Kickoff))
+                    {
+                        <div class="col-12 col-lg-6">
+                            <div class="fixture-card">
+                                <!-- Match Header -->
+                                <div class="match-header-meta">
+                                    <span>📅 @p.Kickoff.ToString("ddd, MMM dd • HH:mm") GMT</span>
+                                    <span class="xg-badge">
+                                        ⚽ xG: @p.ExpectedHomeGoals.ToString("0.0") - @p.ExpectedAwayGoals.ToString("0.0")
                                     </span>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="accuracy-bar" style="width: 100px; height: 6px;">
-                                            <div class="accuracy-fill" style="width: @((p.Probability * 100).ToString("0"))%"></div>
+                                </div>
+
+                                <!-- Teams Row -->
+                                <div class="team-row">
+                                    <div class="team-profile">
+                                        <div class="team-avatar home-badge">@GetMonogram(p.HomeTeam)</div>
+                                        <div>
+                                            <h3 class="team-name">@p.HomeTeam</h3>
+                                            <span class="team-sublabel">Home</span>
                                         </div>
-                                        <span style="color: var(--primary-green); font-weight: 600;">
+                                    </div>
+
+                                    <div class="match-vs-divider">VS</div>
+
+                                    <div class="team-profile justify-content-end text-end">
+                                        <div>
+                                            <h3 class="team-name">@p.AwayTeam</h3>
+                                            <span class="team-sublabel">Away</span>
+                                        </div>
+                                        <div class="team-avatar away-badge">@GetMonogram(p.AwayTeam)</div>
+                                    </div>
+                                </div>
+
+                                <!-- Prediction Verdict & Confidence -->
+                                <div class="d-flex justify-content-between align-items-center pt-2 pb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-secondary small fw-semibold">AI Verdict:</span>
+                                        <span class="prediction-pill @GetOutcomeClass(p.PredictedOutcome)">
+                                            @OutcomeText(p.PredictedOutcome)
+                                        </span>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-secondary small">Confidence:</span>
+                                        <span class="fw-bold" style="color: var(--brand-primary); font-size: 1.05rem;">
                                             @p.Probability.ToString("P0")
                                         </span>
                                     </div>
-                                </td>
+                                </div>
+
+                                <!-- 1X2 Probabilities Bar -->
+                                <div class="probs-bar-container">
+                                    <div class="probs-bar-labels">
+                                        <span style="color: #34d399;">1 (Home): @((p.HomeWinProb * 100).ToString("0"))%</span>
+                                        <span style="color: #fbbf24;">X (Draw): @((p.DrawProb * 100).ToString("0"))%</span>
+                                        <span style="color: #38bdf8;">2 (Away): @((p.AwayWinProb * 100).ToString("0"))%</span>
+                                    </div>
+                                    <div class="probs-bar-visual">
+                                        <div class="prob-fill-home" style="width: @((p.HomeWinProb * 100).ToString("0"))%"></div>
+                                        <div class="prob-fill-draw" style="width: @((p.DrawProb * 100).ToString("0"))%"></div>
+                                        <div class="prob-fill-away" style="width: @((p.AwayWinProb * 100).ToString("0"))%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Tactical AI Preview Insight -->
+                                <div class="p-2.5 rounded mt-3" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.16); font-size: 0.815rem; line-height: 1.45; color: #cbd5e1;">
+                                    <span class="fw-bold" style="color: var(--brand-primary);"><span class="me-1">🧠</span> Tactical Insight:</span>
+                                    @(string.IsNullOrWhiteSpace(p.TacticalInsight) ? p.GenerateTacticalSummary() : p.TacticalInsight)
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <!-- View Mode: Compact Table -->
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle">
+                        <thead>
+                            <tr>
+                                <th>Kickoff</th>
+                                <th>Matchup</th>
+                                <th>Expected Goals</th>
+                                <th>Prediction</th>
+                                <th>1X2 Probabilities</th>
+                                <th>Confidence</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in FilteredPredictions.OrderBy(x => x.Kickoff))
+                            {
+                                <tr>
+                                    <td style="white-space: nowrap;">
+                                        <div class="fw-semibold">@p.Kickoff.ToString("MMM dd")</div>
+                                        <div class="text-secondary small">@p.Kickoff.ToString("HH:mm") GMT</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-light">@p.HomeTeam vs @p.AwayTeam</div>
+                                        <div class="text-secondary small" style="font-size: 0.765rem; max-width: 290px;">@p.GenerateTacticalSummary()</div>
+                                    </td>
+                                    <td>
+                                        <span class="xg-badge">⚽ @p.ExpectedHomeGoals.ToString("0.0") - @p.ExpectedAwayGoals.ToString("0.0")</span>
+                                    </td>
+                                    <td>
+                                        <span class="prediction-pill @GetOutcomeClass(p.PredictedOutcome)">
+                                            @OutcomeText(p.PredictedOutcome)
+                                        </span>
+                                    </td>
+                                    <td style="min-width: 200px;">
+                                        <div class="d-flex justify-content-between small text-secondary mb-1">
+                                            <span>H: @((p.HomeWinProb * 100).ToString("0"))%</span>
+                                            <span>D: @((p.DrawProb * 100).ToString("0"))%</span>
+                                            <span>A: @((p.AwayWinProb * 100).ToString("0"))%</span>
+                                        </div>
+                                        <div class="probs-bar-visual" style="height: 6px;">
+                                            <div class="prob-fill-home" style="width: @((p.HomeWinProb * 100).ToString("0"))%"></div>
+                                            <div class="prob-fill-draw" style="width: @((p.DrawProb * 100).ToString("0"))%"></div>
+                                            <div class="prob-fill-away" style="width: @((p.AwayWinProb * 100).ToString("0"))%"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">@p.Probability.ToString("P0")</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     }
 }
 
 @code {
     private PredictionSession? Session { get; set; }
-    private int BacktestRound { get; set; } = 9;
     private string? Status { get; set; }
+    private bool IsLoading { get; set; }
 
-    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    private string ViewMode { get; set; } = "CARDS";
+    private string SearchQuery { get; set; } = "";
+    private string OutcomeFilter { get; set; } = "ALL";
+
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            Logger.LogInformation("OnFileSelected: starting upload. File={Name} Size={Size}", e.File?.Name, e.File?.Size);
-            Status = "⏳ Processing CSV... This may take a few moments.";
-            StateHasChanged();
-            var file = e.File;
-            await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
-            Session = await Predictor.PredictAsync(stream, backtestRound: 0);
-            Status = "✅ " + Session.InfoMessage;
-            Logger.LogInformation("OnFileSelected: completed successfully");
+            if (await Predictor.IsLocalSeasonBehindAsync(Env.WebRootPath))
+            {
+                try
+                {
+                    IsLoading = true;
+                    Status = "The local fixture file is a previous season. Downloading the current season first...";
+                    StateHasChanged();
+                    var msg = await Predictor.UpdateFixturesAsync(Env.WebRootPath);
+                    Status = $"{msg} Generating predictions...";
+                    StateHasChanged();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Auto season update failed; using local CSV");
+                    Status = "Could not download the current season. Using local fixtures...";
+                    StateHasChanged();
+                }
+            }
+
+            await PredictFromBundled();
         }
-        catch (Exception ex)
+        catch { }
+        finally
         {
-            Logger.LogError(ex, "OnFileSelected: error");
-            Status = $"❌ Error: {ex.Message}";
+            IsLoading = false;
         }
     }
 
-    private async Task PredictFromBundled()
+    private IEnumerable<FixturePrediction> FilteredPredictions
+    {
+        get
+        {
+            if (Session?.NextRoundPredictions == null) return Enumerable.Empty<FixturePrediction>();
+
+            var items = Session.NextRoundPredictions.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(SearchQuery))
+            {
+                var q = SearchQuery.Trim().ToLowerInvariant();
+                items = items.Where(x => x.HomeTeam.ToLowerInvariant().Contains(q) || x.AwayTeam.ToLowerInvariant().Contains(q));
+            }
+
+            if (OutcomeFilter != "ALL")
+            {
+                items = items.Where(x => x.PredictedOutcome == OutcomeFilter);
+            }
+
+            return items;
+        }
+    }
+
+    private void SetFilter(string filter) => OutcomeFilter = filter;
+
+    private async Task PredictFromBundled(bool forceRefresh = false)
     {
         try
         {
-            Logger.LogInformation("PredictFromBundled: starting");
-            Status = "⏳ Loading epl.csv and running predictions...";
+            IsLoading = true;
+            Status = forceRefresh 
+                ? "🧠 Retraining Dixon-Coles & Ensemble ML models across all historical seasons..." 
+                : "⚡ Loading match predictions...";
             StateHasChanged();
-            await Task.Delay(100);
-            
-            Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, backtestRound: 0);
-            
-            Status = "✅ " + Session.InfoMessage;
-            Logger.LogInformation("PredictFromBundled: completed");
+
+            Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, forceRefresh: forceRefresh);
+
+            if (LlmInsight.IsEnabled && Session?.NextRoundPredictions?.Count > 0)
+            {
+                Status = "🤖 Generating tactical match previews via Luna / External LLM...";
+                StateHasChanged();
+                var tasks = Session.NextRoundPredictions.Select(async p => 
+                {
+                    var insight = await LlmInsight.GetTacticalInsightAsync(p);
+                    return p with { TacticalInsight = insight };
+                });
+                var enriched = await Task.WhenAll(tasks);
+                Session = new PredictionSession
+                {
+                    LastCompletedRound = Session.LastCompletedRound,
+                    NextRound = Session.NextRound,
+                    NextRoundPredictions = enriched.ToList(),
+                    Backtest = Session.Backtest,
+                    InfoMessage = Session.InfoMessage,
+                    LoadedSeasons = Session.LoadedSeasons,
+                    TotalMatchesTrained = Session.TotalMatchesTrained
+                };
+            }
+
+            Status = $"✅ AI analysis complete. Generated predictions for Round {Session?.NextRound}.";
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "PredictFromBundled: error");
+            Logger.LogError(ex, "Error generating predictions");
             Status = $"❌ Error: {ex.Message}";
         }
         finally
         {
+            IsLoading = false;
             StateHasChanged();
         }
     }
@@ -183,45 +375,71 @@
     {
         try
         {
-            Logger.LogInformation("UpdateFixtures: starting");
-            Status = "⏳ Downloading latest fixtures from fixturedownload.com...";
+            IsLoading = true;
+            Status = "🔄 Downloading latest fixtures and completed results from fixturedownload.com...";
             StateHasChanged();
-            await Task.Delay(100);
-            await Predictor.UpdateFixturesAsync(Env.WebRootPath);
-            Status = "✅ Fixtures updated successfully! Click 'Generate Predictions' to generate predictions.";
-            Logger.LogInformation("UpdateFixtures: completed");
+
+            var msg = await Predictor.UpdateFixturesAsync(Env.WebRootPath);
+            Status = $"✅ {msg} Retraining models...";
+            await PredictFromBundled();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "UpdateFixtures: failed");
-            Status = $"❌ Error updating fixtures: {ex.Message}";
+            Logger.LogError(ex, "Error updating fixtures");
+            Status = $"❌ Fixture update failed: {ex.Message}";
         }
         finally
         {
+            IsLoading = false;
             StateHasChanged();
         }
     }
 
-    private void Clear()
+    private async Task SyncAllSeasons()
     {
-        Logger.LogInformation("Clear: resetting page state");
-        Session = null;
-        Status = null;
+        try
+        {
+            IsLoading = true;
+            Status = "Harvesting historical EPL seasons from fixturedownload.com...";
+            StateHasChanged();
+
+            var msg = await Predictor.UpdateAllFixturesAndSeasonsAsync(Env.WebRootPath);
+            Status = $"✅ {msg}. Generating updated predictions...";
+            await PredictFromBundled();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error syncing historical seasons");
+            Status = $"❌ Season sync failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
     }
 
-    private string OutcomeText(string c) => c switch
+    private string GetMonogram(string team)
     {
-        "H" => "Home Win",
-        "A" => "Away Win",
-        "D" => "Draw",
-        _ => c
+        if (string.IsNullOrWhiteSpace(team)) return "FC";
+        var parts = team.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
+        return $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant();
+    }
+
+    private string GetOutcomeClass(string code) => code switch
+    {
+        "H" => "home-win",
+        "D" => "draw",
+        "A" => "away-win",
+        _ => ""
     };
 
-    private string GetPredictionClass(string outcome) => outcome.ToLower() switch
+    private string OutcomeText(string code) => code switch
     {
-        "h" => "home",
-        "a" => "away",
-        "d" => "draw",
-        _ => "draw"
+        "H" => "Home Win",
+        "D" => "Draw",
+        "A" => "Away Win",
+        _ => code
     };
 }

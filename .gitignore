@@ -1,3 +1,5 @@
+.agent/
+.local/
 bin/
 obj/
 __pycache__/

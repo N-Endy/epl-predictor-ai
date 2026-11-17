@@ -1,85 +1,144 @@
-﻿@page "/"
+@page "/"
+@using PredictorBlazor.Services
+@inject PredictorService Predictor
+@inject IWebHostEnvironment Env
 
-<PageTitle>EPL Predictor AI - Home</PageTitle>
+<PageTitle>EPL Predictor AI - Advanced Sports Analytics</PageTitle>
 
-<div class="hero-section fade-in">
-    <h1 class="hero-title">⚽ EPL Predictor AI</h1>
-    <p class="hero-subtitle">Advanced Machine Learning for Premier League Match Predictions</p>
-    <div class="d-flex gap-3 justify-content-center mt-4">
-        <a href="/predict" class="btn btn-custom-primary">Make Predictions</a>
-        <a href="/backtest" class="btn btn-custom-secondary">View Backtest Results</a>
+<!-- Hero Section -->
+<div class="glass-card mb-4 text-center py-5 px-3 fade-in" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%), var(--bg-card);">
+    <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+        <span class="status-dot"></span>
+        <span class="fw-bold" style="color: var(--brand-primary); font-size: 0.8rem;">Dixon-Coles & Ensemble ML Core Active</span>
+    </div>
+
+    <h1 class="display-5 fw-extrabold mb-3" style="letter-spacing: -0.04em;">
+        Predict Every Premier League Matchday with AI
+    </h1>
+    
+    <p class="text-secondary mx-auto mb-4" style="max-width: 680px; font-size: 1.05rem; line-height: 1.6;">
+        Combines bivariate Poisson expected goals modeling, time-decay parameters, and Random Forest / Gradient Boosted tree ensembles trained across 2,000+ historical fixtures.
+    </p>
+
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="predict" class="btn btn-brand-primary px-4 py-2.5">
+            🔮 Make Next Round Predictions
+        </a>
+        <a href="backtest" class="btn btn-brand-secondary px-4 py-2.5">
+            📊 Run Model Backtest
+        </a>
     </div>
 </div>
 
-<div class="feature-grid">
-    <div class="feature-card slide-in">
-        <div class="feature-icon">🧠</div>
-        <h3 class="feature-title">AI-Powered</h3>
-        <p class="feature-description">
-            Enhanced Random Forest model with 500 estimators, head-to-head records, and form tracking for superior accuracy.
-        </p>
-    </div>
-
-    <div class="feature-card slide-in" style="animation-delay: 0.1s;">
-        <div class="feature-icon">📊</div>
-        <h3 class="feature-title">Advanced Features</h3>
-        <p class="feature-description">
-            Leverages Elo ratings, rolling statistics, venue performance, and 30+ features to predict match outcomes.
-        </p>
-    </div>
-
-    <div class="feature-card slide-in" style="animation-delay: 0.2s;">
-        <div class="feature-icon">🎯</div>
-        <h3 class="feature-title">60%+ Accuracy</h3>
-        <p class="feature-description">
-            Optimized hyperparameters and balanced class weights deliver consistent 60%+ prediction accuracy.
-        </p>
-    </div>
-
-    <div class="feature-card slide-in" style="animation-delay: 0.3s;">
-        <div class="feature-icon">📈</div>
-        <h3 class="feature-title">Backtest Validation</h3>
-        <p class="feature-description">
-            Test model performance on historical rounds to validate predictions before using them for future matches.
-        </p>
-    </div>
-</div>
-
-<div class="custom-card mt-5">
-    <div class="custom-card-header">
-        <h2 class="custom-card-title">How It Works</h2>
-    </div>
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="stats-card">
-                <span class="stats-value">1</span>
-                <span class="stats-label">Upload Data</span>
-            </div>
-            <p class="text-center mt-3" style="color: var(--text-secondary);">
-                Upload your EPL CSV file with match history and upcoming fixtures
-            </p>
+<!-- High-Level Metrics Row -->
+<div class="row g-3 mb-4 fade-in">
+    <div class="col-6 col-md-3">
+        <div class="stat-widget text-center">
+            <div class="stat-widget-label">Training Matches</div>
+            <div class="stat-widget-value text-success">2,000+</div>
+            <div class="stat-widget-sub">Multi-Season Database</div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="stats-card">
-                <span class="stats-value">2</span>
-                <span class="stats-label">AI Analysis</span>
-            </div>
-            <p class="text-center mt-3" style="color: var(--text-secondary);">
-                Machine learning model analyzes 30+ features including form, H2H, and Elo ratings
-            </p>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-widget text-center">
+            <div class="stat-widget-label">Statistical Model</div>
+            <div class="stat-widget-value text-info">Dixon-Coles</div>
+            <div class="stat-widget-sub">Time-Decay Poisson</div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="stats-card">
-                <span class="stats-value">3</span>
-                <span class="stats-label">Get Predictions</span>
-            </div>
-            <p class="text-center mt-3" style="color: var(--text-secondary);">
-                Receive match outcome predictions with confidence scores for each fixture
-            </p>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-widget text-center">
+            <div class="stat-widget-label">Ensemble Stack</div>
+            <div class="stat-widget-value" style="color: var(--brand-amber);">RF + GBDT</div>
+            <div class="stat-widget-sub">Logit Probability Blend</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-widget text-center">
+            <div class="stat-widget-label">Benchmark Accuracy</div>
+            <div class="stat-widget-value" style="color: #38bdf8;">~60%</div>
+            <div class="stat-widget-sub">Walk-Forward Verified</div>
         </div>
     </div>
 </div>
 
-<div class="custom-alert custom-alert-info mt-4">
-    <strong>💡 Pro Tip:</strong> Use the backtest feature to evaluate model accuracy on past rounds before relying on predictions for upcoming matches.
+<!-- Architecture Breakdown Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <div class="glass-card h-100">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="fs-4">📐</span>
+                <h3 class="fs-5 fw-bold mb-0 text-light">Dixon-Coles & Poisson Modeling</h3>
+            </div>
+            <p class="text-secondary small mb-3" style="line-height: 1.6;">
+                Calculates team attack strength ($\alpha$), defensive vulnerability ($\beta$), home field advantage ($\gamma$), and low-score dependence ($\tau_{\rho}$) to construct an exact $8 \times 8$ score probability distribution.
+            </p>
+            <div class="p-2.5 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.775rem; color: var(--text-muted);">
+                Generates Expected Goals ($xG_{\text{Home}}$ vs $xG_{\text{Away}}$), Over/Under 2.5, and Both Teams to Score (BTTS).
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="glass-card h-100">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="fs-4">🧠</span>
+                <h3 class="fs-5 fw-bold mb-0 text-light">Multi-Season Feature Engineering</h3>
+            </div>
+            <p class="text-secondary small mb-3" style="line-height: 1.6;">
+                Dynamic Elo ratings with margin-of-victory scaling, Exponentially Weighted Moving Average (EWMA) form curves, clean sheet rates, fatigue/rest differences, and Head-to-Head records.
+            </p>
+            <div class="p-2.5 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.775rem; color: var(--text-muted);">
+                Harvests seasons @HarvestedRange directly from fixturedownload.com with zero manual entry.
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Workflow Steps -->
+<div class="glass-card mb-4">
+    <div class="glass-card-header">
+        <h2 class="fs-5 fw-bold mb-0 text-light">How to Use the Predictor</h2>
+    </div>
+
+    <div class="row g-4 pt-2">
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-3">
+                <div class="team-avatar home-badge" style="width: 36px; height: 36px; font-size: 0.9rem;">1</div>
+                <div>
+                    <h4 class="fs-6 fw-bold text-light mb-1">Harvest Data</h4>
+                    <p class="text-secondary small mb-0">Click <strong>Sync Multi-Season Data</strong> on the Predictions page to download the latest fixtures and historical seasons.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-3">
+                <div class="team-avatar" style="width: 36px; height: 36px; font-size: 0.9rem; border-left: 3px solid var(--brand-amber);">2</div>
+                <div>
+                    <h4 class="fs-6 fw-bold text-light mb-1">Generate 1X2 Probabilities</h4>
+                    <p class="text-secondary small mb-0">The AI models train and synthesize pre-match features for the upcoming round with expected goals ($xG$).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-3">
+                <div class="team-avatar away-badge" style="width: 36px; height: 36px; font-size: 0.9rem;">3</div>
+                <div>
+                    <h4 class="fs-6 fw-bold text-light mb-1">Backtest & Verify</h4>
+                    <p class="text-secondary small mb-0">Use the walk-forward backtest tool to simulate round-by-round out-of-sample prediction accuracy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string HarvestedRange { get; set; } = "2018–present";
+
+    protected override void OnInitialized()
+    {
+        HarvestedRange = Predictor.GetHarvestedSeasonRangeLabel(Env.WebRootPath);
+    }
+}
