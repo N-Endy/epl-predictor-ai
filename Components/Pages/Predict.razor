@@ -5,6 +5,7 @@
 @inject LlmInsightService LlmInsight
 @inject IWebHostEnvironment Env
 @inject ILogger<Predict> Logger
+@inject NavigationManager Nav
 
 <PageTitle>Match Predictions - EPL Predictor AI</PageTitle>
 
@@ -46,6 +47,103 @@
     <div class="glass-card mb-4 fade-in py-3 px-4 d-flex align-items-center gap-3" style="border-left: 4px solid var(--brand-cyan);">
         <span style="font-size: 1.35rem;">ℹ️</span>
         <div class="flex-grow-1" style="font-size: 0.925rem; font-weight: 500;">@Status</div>
+        @if (IsLoading)
+        {
+            <div class="spinner-border spinner-border-sm text-info" role="status"></div>
+        }
+    </div>
+}
+
+@if (IsLoading && Session is null)
+{
+    <!-- Active Machine Learning Computation Hero Card -->
+    <div class="glass-card mb-4 text-center py-5 px-4 fade-in" style="border: 1px solid var(--border-bright); background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, var(--bg-card) 70%);">
+        <div class="d-inline-flex p-3 rounded-circle mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
+            <div class="spinner-border text-success" style="width: 2.75rem; height: 2.75rem;" role="status"></div>
+        </div>
+
+        <h3 class="fs-4 fw-bold text-light mb-2">Analyzing Premier League Matchday...</h3>
+        <p class="text-secondary mb-3 mx-auto" style="max-width: 600px; font-size: 0.95rem;">
+            Fitting Dixon-Coles goal expectation parameters, evolving Elo strength curves, and stacking Random Forest and Gradient Boosting probability models.
+        </p>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-animated-gradient mx-auto mb-4" style="max-width: 480px;"></div>
+
+        <!-- 4 Step Status Pipeline -->
+        <div class="d-flex justify-content-center gap-4 flex-wrap text-start mx-auto" style="max-width: 700px;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success rounded-pill px-2">✓</span>
+                <span class="small text-light fw-semibold">3,500+ Fixtures Ingested</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="spinner-grow spinner-grow-sm text-info" role="status"></span>
+                <span class="small text-info fw-semibold">Dixon-Coles & Elo Calibration</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="status-dot"></span>
+                <span class="small text-secondary">Tree Ensembles & Stacking</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="status-dot"></span>
+                <span class="small text-secondary">AI Tactical Insights</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shimmer Skeleton Match Cards -->
+    <div class="row g-3 mb-4 fade-in">
+        @for (int i = 0; i < 4; i++)
+        {
+            <div class="col-12 col-lg-6">
+                <div class="skeleton-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="skeleton-shimmer" style="width: 140px; height: 16px;"></div>
+                        <div class="skeleton-shimmer" style="width: 90px; height: 16px;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center my-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="skeleton-shimmer rounded-circle" style="width: 42px; height: 42px;"></div>
+                            <div class="skeleton-shimmer" style="width: 110px; height: 20px;"></div>
+                        </div>
+                        <div class="skeleton-shimmer" style="width: 32px; height: 18px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="skeleton-shimmer" style="width: 110px; height: 20px;"></div>
+                            <div class="skeleton-shimmer rounded-circle" style="width: 42px; height: 42px;"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-shimmer w-100 mb-2" style="height: 12px; border-radius: 6px;"></div>
+                    <div class="skeleton-shimmer w-75" style="height: 12px; border-radius: 6px;"></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (!IsLoading && Session is null)
+{
+    <div class="glass-card mb-4 text-center py-5 px-4 fade-in">
+        <span style="font-size: 3rem;">⚽</span>
+        <h3 class="fs-4 fw-bold text-light mt-3 mb-2">No Active Prediction Session</h3>
+        <p class="text-secondary mb-4 mx-auto" style="max-width: 500px;">
+            Click below to load historical match data and generate model forecasts for the upcoming round.
+        </p>
+        <button class="btn btn-brand-primary px-4 py-2.5" @onclick="() => PredictFromBundled(true)">
+            ⚡ Run Match Predictions
+        </button>
+    </div>
+}
+
+@if (IsLoading && Session is not null)
+{
+    <div class="glass-card mb-3 py-2.5 px-4 d-flex align-items-center justify-content-between gap-3 border-success fade-in" style="background: rgba(16, 185, 129, 0.1);">
+        <div class="d-flex align-items-center gap-2.5">
+            <span class="spinner-border spinner-border-sm text-success" role="status"></span>
+            <span class="fw-semibold text-light" style="font-size: 0.9rem;">
+                Re-evaluating match models and calculating live predictions...
+            </span>
+        </div>
+        <div class="progress-bar-animated-gradient" style="width: 180px;"></div>
     </div>
 }
 
@@ -87,7 +185,7 @@
     <!-- Predictions Container -->
     @if (Session.NextRoundPredictions?.Count > 0)
     {
-        <div class="glass-card mb-4 fade-in">
+        <div class="glass-card mb-4 fade-in" style="@(IsLoading ? "opacity: 0.55; pointer-events: none; transition: opacity 0.2s;" : "transition: opacity 0.2s;")">
             <!-- Filter & View Controls -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 pb-3 border-bottom" style="border-color: var(--border-subtle) !important;">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -119,8 +217,18 @@
                 </div>
             </div>
 
-            <!-- View Mode: Visual Cards -->
-            @if (ViewMode == "CARDS")
+            @if (!FilteredPredictions.Any())
+            {
+                <div class="text-center py-5 text-secondary">
+                    <span class="fs-1 d-block mb-2">🔍</span>
+                    <h4 class="fs-5 fw-bold text-light mb-1">No matching fixtures</h4>
+                    <p class="small text-muted mb-3">No matches found matching "@SearchQuery" with filter "@OutcomeFilter".</p>
+                    <button class="btn btn-sm btn-brand-outline" @onclick='() => { SearchQuery = ""; OutcomeFilter = "ALL"; }'>
+                        Clear Filters
+                    </button>
+                </div>
+            }
+            else if (ViewMode == "CARDS")
             {
                 <div class="row g-3">
                     @foreach (var p in FilteredPredictions.OrderBy(x => x.Kickoff))
@@ -258,9 +366,13 @@
 }
 
 @code {
+    [SupplyParameterFromQuery]
+    public bool? Refresh { get; set; }
+
     private PredictionSession? Session { get; set; }
     private string? Status { get; set; }
-    private bool IsLoading { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private bool _hasInitialized = false;
 
     private string ViewMode { get; set; } = "CARDS";
     private string SearchQuery { get; set; } = "";
@@ -268,33 +380,62 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _hasInitialized = true;
+        await LoadDataAsync(forceRefresh: Refresh == true);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_hasInitialized && Refresh == true)
+        {
+            Refresh = null;
+            Nav.NavigateTo("predict", replace: true);
+            await PredictFromBundled(forceRefresh: true);
+        }
+    }
+
+    private async Task LoadDataAsync(bool forceRefresh = false)
+    {
         try
         {
+            IsLoading = true;
+            Status = "⚡ Loading match predictions and historical models...";
+            StateHasChanged();
+            await Task.Yield();
+            await Task.Delay(50);
+
             if (await Predictor.IsLocalSeasonBehindAsync(Env.WebRootPath))
             {
                 try
                 {
-                    IsLoading = true;
                     Status = "The local fixture file is a previous season. Downloading the current season first...";
                     StateHasChanged();
+                    await Task.Yield();
                     var msg = await Predictor.UpdateFixturesAsync(Env.WebRootPath);
                     Status = $"{msg} Generating predictions...";
                     StateHasChanged();
+                    await Task.Yield();
                 }
                 catch (Exception ex)
                 {
                     Logger.LogWarning(ex, "Auto season update failed; using local CSV");
                     Status = "Could not download the current season. Using local fixtures...";
                     StateHasChanged();
+                    await Task.Yield();
                 }
             }
 
-            await PredictFromBundled();
+            await PredictFromBundled(forceRefresh: forceRefresh);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error initializing predictions");
+            Status = $"❌ Error loading predictions: {ex.Message}";
+        }
         finally
         {
             IsLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -332,6 +473,8 @@
                 ? "🧠 Retraining Dixon-Coles & Ensemble ML models across all historical seasons..." 
                 : "⚡ Loading match predictions...";
             StateHasChanged();
+            await Task.Yield();
+            await Task.Delay(50);
 
             Session = await Predictor.PredictFromFileIfExistsAsync(Env.WebRootPath, forceRefresh: forceRefresh);
 
@@ -339,6 +482,7 @@
             {
                 Status = "🤖 Generating tactical match previews via Luna / External LLM...";
                 StateHasChanged();
+                await Task.Yield();
                 var tasks = Session.NextRoundPredictions.Select(async p => 
                 {
                     var insight = await LlmInsight.GetTacticalInsightAsync(p);
@@ -378,10 +522,14 @@
             IsLoading = true;
             Status = "🔄 Downloading latest fixtures and completed results from fixturedownload.com...";
             StateHasChanged();
+            await Task.Yield();
+            await Task.Delay(50);
 
             var msg = await Predictor.UpdateFixturesAsync(Env.WebRootPath);
             Status = $"✅ {msg} Retraining models...";
-            await PredictFromBundled();
+            StateHasChanged();
+            await Task.Yield();
+            await PredictFromBundled(forceRefresh: true);
         }
         catch (Exception ex)
         {
@@ -400,12 +548,16 @@
         try
         {
             IsLoading = true;
-            Status = "Harvesting historical EPL seasons from fixturedownload.com...";
+            Status = "🌐 Harvesting historical EPL seasons from fixturedownload.com...";
             StateHasChanged();
+            await Task.Yield();
+            await Task.Delay(50);
 
             var msg = await Predictor.UpdateAllFixturesAndSeasonsAsync(Env.WebRootPath);
             Status = $"✅ {msg}. Generating updated predictions...";
-            await PredictFromBundled();
+            StateHasChanged();
+            await Task.Yield();
+            await PredictFromBundled(forceRefresh: true);
         }
         catch (Exception ex)
         {

@@ -27,9 +27,9 @@
     <!-- Quick Preset Buttons -->
     <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
         <span class="text-secondary small fw-semibold me-2">Quick Presets:</span>
-        <button type="button" class="btn btn-sm btn-brand-outline" @onclick="() => SetPreset(5, 15)">Rounds 5 - 15</button>
-        <button type="button" class="btn btn-sm btn-brand-outline" @onclick="() => SetPreset(15, 25)">Rounds 15 - 25</button>
-        <button type="button" class="btn btn-sm btn-brand-outline" @onclick="() => SetPreset(1, 25)">Rounds 1 - 25</button>
+        <button type="button" class="btn btn-sm @(StartRound == 5 && EndRound == 15 ? "btn-brand-primary" : "btn-brand-outline")" @onclick="() => SetPreset(5, 15)">Rounds 5 - 15</button>
+        <button type="button" class="btn btn-sm @(StartRound == 15 && EndRound == 25 ? "btn-brand-primary" : "btn-brand-outline")" @onclick="() => SetPreset(15, 25)">Rounds 15 - 25</button>
+        <button type="button" class="btn btn-sm @(StartRound == 1 && EndRound == 25 ? "btn-brand-primary" : "btn-brand-outline")" @onclick="() => SetPreset(1, 25)">Rounds 1 - 25</button>
     </div>
     
     <div class="row g-3 align-items-end">
@@ -59,10 +59,16 @@
 
 @if (IsLoading)
 {
-    <div class="glass-card text-center py-5 mb-4">
-        <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-        <h3 class="fs-4 text-light">Executing Walk-Forward Backtesting...</h3>
-        <p class="text-secondary mb-0">Retraining models round-by-round from historical fixtures (Rounds @StartRound to @EndRound)...</p>
+    <div class="glass-card text-center py-5 mb-4 fade-in" style="border: 1px solid var(--border-bright); background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, var(--bg-card) 70%);">
+        <div class="d-inline-flex p-3 rounded-circle mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
+            <div class="spinner-border text-success" style="width: 2.75rem; height: 2.75rem;" role="status"></div>
+        </div>
+        <h3 class="fs-4 fw-bold text-light mb-2">Executing Walk-Forward Backtesting...</h3>
+        <p class="text-secondary mb-3 mx-auto" style="max-width: 580px; font-size: 0.95rem;">
+            Iterating round-by-round from Round @StartRound to @EndRound. Retraining Dixon-Coles parameters and tree ensembles with strictly historical data to eliminate lookahead bias.
+        </p>
+        <div class="progress-bar-animated-gradient mx-auto mb-3" style="max-width: 440px;"></div>
+        <div class="text-muted small">Simulating out-of-sample inference across historical matchdays...</div>
     </div>
 }
 
@@ -204,6 +210,13 @@
                 </tbody>
             </table>
         </div>
+
+        @if (!FilteredItems.Any())
+        {
+            <div class="text-center py-4 text-secondary">
+                <span>No matches found under filter "<strong>@ResultFilter</strong>".</span>
+            </div>
+        }
     </div>
 }
 
@@ -239,12 +252,20 @@
 
     private async Task RunBacktest()
     {
+        if (StartRound < 1 || EndRound > 38 || StartRound > EndRound)
+        {
+            ErrorMessage = $"Invalid Round Range: Please select a valid range where Start Round ({StartRound}) is less than or equal to End Round ({EndRound}).";
+            return;
+        }
+
         try
         {
             IsLoading = true;
             ErrorMessage = null;
             BacktestResult = null;
             StateHasChanged();
+            await Task.Yield();
+            await Task.Delay(50);
 
             var session = await Predictor.PredictFromFileIfExistsAsync(
                 Env.WebRootPath,

@@ -1,7 +1,9 @@
 @page "/"
 @using PredictorBlazor.Services
+@rendermode InteractiveServer
 @inject PredictorService Predictor
 @inject IWebHostEnvironment Env
+@inject NavigationManager Nav
 
 <PageTitle>EPL Predictor AI - Advanced Sports Analytics</PageTitle>
 
@@ -21,12 +23,32 @@
     </p>
 
     <div class="d-flex justify-content-center gap-3 flex-wrap">
-        <a href="predict" class="btn btn-brand-primary px-4 py-2.5">
-            🔮 Make Next Round Predictions
-        </a>
-        <a href="backtest" class="btn btn-brand-secondary px-4 py-2.5">
-            📊 Run Model Backtest
-        </a>
+        <button class="btn btn-brand-primary px-4 py-2.5 d-inline-flex align-items-center gap-2" 
+                @onclick="NavigateToPredict" 
+                disabled="@IsNavigating">
+            @if (IsNavigatingToPredict)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Loading Match Predictions...</span>
+            }
+            else
+            {
+                <span>🔮 Make Next Round Predictions</span>
+            }
+        </button>
+        <button class="btn btn-brand-secondary px-4 py-2.5 d-inline-flex align-items-center gap-2" 
+                @onclick="NavigateToBacktest" 
+                disabled="@IsNavigating">
+            @if (IsNavigatingToBacktest)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Loading Backtest Suite...</span>
+            }
+            else
+            {
+                <span>📊 Run Model Backtest</span>
+            }
+        </button>
     </div>
 </div>
 
@@ -71,10 +93,10 @@
                 <h3 class="fs-5 fw-bold mb-0 text-light">Dixon-Coles & Poisson Modeling</h3>
             </div>
             <p class="text-secondary small mb-3" style="line-height: 1.6;">
-                Calculates team attack strength ($\alpha$), defensive vulnerability ($\beta$), home field advantage ($\gamma$), and low-score dependence ($\tau_{\rho}$) to construct an exact $8 \times 8$ score probability distribution.
+                Calculates team attack strength (&alpha;), defensive vulnerability (&beta;), home field advantage (&gamma;), and low-score dependence (&tau;) to construct an exact 8 &times; 8 score probability distribution.
             </p>
             <div class="p-2.5 rounded" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); font-size: 0.775rem; color: var(--text-muted);">
-                Generates Expected Goals ($xG_{\text{Home}}$ vs $xG_{\text{Away}}$), Over/Under 2.5, and Both Teams to Score (BTTS).
+                Generates Expected Goals (xG<sub>Home</sub> vs xG<sub>Away</sub>), Over/Under 2.5, and Both Teams to Score (BTTS).
             </div>
         </div>
     </div>
@@ -117,7 +139,7 @@
                 <div class="team-avatar" style="width: 36px; height: 36px; font-size: 0.9rem; border-left: 3px solid var(--brand-amber);">2</div>
                 <div>
                     <h4 class="fs-6 fw-bold text-light mb-1">Generate 1X2 Probabilities</h4>
-                    <p class="text-secondary small mb-0">The AI models train and synthesize pre-match features for the upcoming round with expected goals ($xG$).</p>
+                    <p class="text-secondary small mb-0">The AI models train and synthesize pre-match features for the upcoming round with expected goals (xG).</p>
                 </div>
             </div>
         </div>
@@ -136,9 +158,30 @@
 
 @code {
     private string HarvestedRange { get; set; } = "2018–present";
+    private bool IsNavigatingToPredict { get; set; }
+    private bool IsNavigatingToBacktest { get; set; }
+    private bool IsNavigating => IsNavigatingToPredict || IsNavigatingToBacktest;
 
     protected override void OnInitialized()
     {
         HarvestedRange = Predictor.GetHarvestedSeasonRangeLabel(Env.WebRootPath);
+    }
+
+    private async Task NavigateToPredict()
+    {
+        if (IsNavigating) return;
+        IsNavigatingToPredict = true;
+        StateHasChanged();
+        await Task.Yield();
+        Nav.NavigateTo("predict");
+    }
+
+    private async Task NavigateToBacktest()
+    {
+        if (IsNavigating) return;
+        IsNavigatingToBacktest = true;
+        StateHasChanged();
+        await Task.Yield();
+        Nav.NavigateTo("backtest");
     }
 }
